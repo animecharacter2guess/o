@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title> Character Guesser</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#05070d;
+    --panel:#0b0f14;
+    --card:rgba(10,15,25,0.75);
+    --text:#e7e9ea;
+    --muted:#a1a1aa;
+    --accent:#00d4ff;
+    --border:#232a34;
+  }
+
+  body{
+    margin:0;
+    font-family:'Poppins', sans-serif;
+    color:var(--text);
+    background:
+      linear-gradient(rgba(0,0,0,0.75),rgba(0,0,0,0.9)),
+      url('https://images.unsplash.com/photo-1541562232579-512a21360020?auto=format&fit=crop&w=1600&q=80');
+    background-size:cover;
+    background-position:center;
+    min-height:100vh;
+  }
+
+  .container{
+    max-width:900px;
+    margin:auto;
+    padding:30px 20px;
+  }
+
+  .logo{
+    font-family:'Orbitron', sans-serif;
+    font-size:28px;
+    font-weight:800;
+    text-align:center;
+    margin-bottom:10px;
+    color:var(--accent);
+    letter-spacing:2px;
+  }
+
+  h1{
+    font-size:30px;
+    text-align:center;
+    margin:0;
+  }
+
+  .sub{
+    text-align:center;
+    color:var(--muted);
+    margin-bottom:20px;
+  }
+
+  .stats{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:20px 0;
+  }
+
+  .stat{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:10px 14px;
+    border-radius:12px;
+    backdrop-filter:blur(10px);
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:30px;
+    border-radius:18px;
+    backdrop-filter:blur(12px);
+  }
+
+  .clue{
+    font-size:18px;
+    line-height:1.6;
+    margin-bottom:25px;
+  }
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  button{
+    padding:14px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,0.05);
+    color:var(--text);
+    cursor:pointer;
+    font-weight:600;
+    transition:0.2s;
+  }
+
+  button:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:scale(1.03);
+  }
+
+  .primary{
+    margin-top:20px;
+    width:100%;
+    background:var(--accent);
+    color:#000;
+    border:none;
+    font-weight:800;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="logo">ANIME </div>
+  <h1>Character Guesser</h1>
+  <div class="sub"> How big of an anime nerd are you?</div>
+
+  <div class="stats">
+    <div class="stat">Score: <span id="score">0</span></div>
+    <div class="stat">Streak: <span id="streak">0</span></div>
+    <div class="stat">Best: <span id="best">0</span></div>
+  </div>
+
+  <div class="card">
+    <div class="clue" id="clue"></div>
+    <div class="options" id="options"></div>
+    <button class="primary" onclick="restart()">Restart</button>
+  </div>
+
+</div>
+
+<script>
+const characters = [
+  {n:"Naruto Uzumaki",f:"Jinchuriki of Kurama, wants to be Hokage."},
+  {n:"Sasuke Uchiha",f:"Last Uchiha survivor seeking power and revenge."},
+  {n:"Itachi Uchiha",f:"Killed his clan for peace."},
+  {n:"Kakashi Hatake",f:"Copy ninja with Sharingan."},
+  {n:"Jiraiya",f:"Legendary Sannin and pervy sage."},
+  {n:"Minato Namikaze",f:"Yellow Flash of the Leaf."},
+  {n:"Tsunade",f:"Strongest medical ninja and Hokage."},
+  {n:"Gaara",f:"Kazekage with sand powers."},
+  {n:"Rock Lee",f:"No ninjutsu, pure taijutsu."},
+  {n:"Neji Hyuga",f:"Byakugan genius who believed fate."},
+  {n:"Shikamaru Nara",f:"Lazy genius strategist."},
+  {n:"Monkey D. Luffy",f:"Rubber pirate aiming for One Piece."},
+  {n:"Roronoa Zoro",f:"Three sword style swordsman."},
+  {n:"Nami",f:"Navigator who loves money."},
+  {n:"Sanji",f:"Cook who fights with kicks."},
+  {n:"Tony Tony Chopper",f:"Reindeer doctor with Human fruit."},
+  {n:"Nico Robin",f:"Archaeologist with dark past."},
+  {n:"Franky",f:"Cyborg shipwright SUPER."},
+  {n:"Brook",f:"Living skeleton musician."},
+  {n:"Jinbe",f:"Fishman helmsman."},
+  {n:"Ace",f:"Flame fruit user."},
+  {n:"Shanks",f:"Yonko with insane aura."},
+  {n:"Mihawk",f:"World strongest swordsman."},
+  {n:"Law",f:"Room ability surgeon captain."},
+  {n:"Kid",f:"Magnetism chaos pirate."},
+  {n:"Hancock",f:"Pirate empress."},
+  {n:"Doflamingo",f:"String fruit villain."},
+  {n:"Crocodile",f:"Sand warlord."},
+  {n:"Sabo",f:"Revolution flame."},
+  {n:"Whitebeard",f:"Legend pirate."},
+
+  {n:"Ichigo Kurosaki",f:"Soul reaper substitute."},
+  {n:"Rukia",f:"Changed Ichigo's life."},
+  {n:"Byakuya",f:"Noble captain."},
+  {n:"Kenpachi",f:"Fight obsessed."},
+  {n:"Aizen",f:"Master manipulator."},
+  {n:"Toshiro",f:"Ice captain."},
+  {n:"Mayuri",f:"Mad scientist."},
+  {n:"Grimmjow",f:"Wild espada."},
+  {n:"Ulquiorra",f:"Emotionless espada."},
+  {n:"Urahara",f:"Genius shopkeeper."},
+
+  {n:"Eren Yeager",f:"Titan freedom obsession."},
+  {n:"Mikasa",f:"Loyal soldier."},
+  {n:"Armin",f:"Strategic genius."},
+  {n:"Levi",f:"Strongest soldier."},
+
+  {n:"Tanjiro",f:"Kind demon slayer."},
+  {n:"Nezuko",f:"Demon sister."},
+  {n:"Zenitsu",f:"Lightning scared boy."},
+  {n:"Inosuke",f:"Boar fighter."},
+  {n:"Gojo",f:"Limitless sorcerer."},
+  {n:"Yuji",f:"Sukuna host."},
+  {n:"Sukuna",f:"King of curses."},
+
+  {n:"Light Yagami",f:"Kira Death Note."},
+  {n:"L",f:"Detective genius."},
+  {n:"Ryuk",f:"Apple shinigami."},
+
+  {n:"Gon",f:"Hunter boy."},
+  {n:"Killua",f:"Assassin kid."},
+  {n:"Kurapika",f:"Chain user."},
+ {n:"Hisoka",f:"Clown fighter."}
+];
+
+let score=0, streak=0, best=0, current;
+
+function newQ(){
+  current = characters[Math.floor(Math.random()*characters.length)];
+  let opts=[current.n];
+  while(opts.length<4){
+    let r=characters[Math.floor(Math.random()*characters.length)].n;
+    if(!opts.includes(r)) opts.push(r);
+  }
+  opts.sort(()=>Math.random()-0.5);
+
+  document.getElementById("clue").innerText=current.f;
+  let box=document.getElementById("options");
+  box.innerHTML="";
+
+  opts.forEach(o=>{
+    let b=document.createElement("button");
+    b.innerText=o;
+    b.onclick=()=>check(o);
+    box.appendChild(b);
+  });
+}
+
+function check(ans){
+  if(ans===current.n){
+    score+=10;
+    streak++;
+    if(streak>best) best=streak;
+  }else{
+    alert("Wrong! Restart.");
+    score=0;
+    streak=0;
+  }
+  update();
+  newQ();
+}
+
+function update(){
+  document.getElementById("score").innerText=score;
+  document.getElementById("streak").innerText=streak;
+  document.getElementById("best").innerText=best;
+}
+
+function restart(){
+  score=0; streak=0;
+  update();
+  newQ();
+}
+
+newQ();
+</script>
+
+</body>
+</html>
